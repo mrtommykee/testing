@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H1 Maths: Binomial Inequality Drill</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #2c3e50; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .hidden { display: none; }
+        button { background-color: #2c3e50; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 15px; margin: 5px; transition: 0.2s; }
+        button:hover { background-color: #34495e; }
+        .flashcard { min-height: 160px; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; border: 2px solid #2c3e50; font-weight: bold; font-size: 1.2em; padding: 25px; border-radius: 12px; background: #fff; }
+        .explanation-box { padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #e67e22; background-color: #fff5eb; }
+        .gc-cheatsheet { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; margin-bottom: 20px; }
+        .correct-ans { color: #27ae60; font-weight: bold; }
+        .wrong-ans { color: #e74c3c; font-weight: bold; }
+        h1, h2 { color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+    <h1>📊 H1 Maths: Binomial Distribution</h1>
+
+    <div id="menu">
+        <div class="card">
+            <h2>Exam Logic: Inequality Cheat Sheet</h2>
+            <div class="gc-cheatsheet">
+                • "At most 5" → P(X ≤ 5) → binomcdf(n, p, 5)<br>
+                • "Fewer than 5" → P(X ≤ 4) → binomcdf(n, p, 4)<br>
+                • "At least 5" → P(X ≥ 5) → 1 - binomcdf(n, p, 4)<br>
+                • "More than 5" → P(X ≥ 6) → 1 - binomcdf(n, p, 5)<br>
+                • "Between 5 and 8 (inclusive)" → binomcdf(n, p, 8) - binomcdf(n, p, 4)
+            </div>
+        </div>
+        <button onclick="showStudy()">📖 Study Mode</button>
+        <button onclick="showQuiz()">📝 Start Inequality Quiz</button>
+    </div>
+
+    <div id="study-mode" class="hidden">
+        <div class="card">
+            <h2>Flashcards: Phrase Translation</h2>
+            <div id="flashcard" class="flashcard" onclick="flipCard()">Click to Start</div>
+            <p style="text-align:center">
+                <button onclick="prevCard()">← Prev</button>
+                <button onclick="nextCard()">Next →</button>
+            </p>
+            <button onclick="showMenu()">Back to Menu</button>
+        </div>
+    </div>
+
+    <div id="quiz-mode" class="hidden">
+        <div id="question-container" class="card">
+            <h3 id="question-num"></h3>
+            <p id="question-text" style="font-size: 1.1em; font-weight: bold;"></p>
+            <div id="options"></div>
+            
+            <div id="review-step" class="hidden">
+                <div id="explanation-text" class="explanation-box"></div>
+                <button onclick="nextQuestion()" id="next-btn">Next Question →</button>
+            </div>
+        </div>
+        
+        <div id="result-area" class="hidden card">
+            <h2>Your Proficiency Report</h2>
+            <p id="score-summary"></p>
+            <div id="detailed-feedback" style="padding: 10px; border-top: 1px solid #ccc;"></div>
+            <button onclick="showMenu()">Return to Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { q: "Phrase: 'X is at most r'", a: "Math: P(X ≤ r)\nGC: binomcdf(n, p, r)" },
+            { q: "Phrase: 'X is fewer than r'", a: "Math: P(X ≤ r-1)\nGC: binomcdf(n, p, r-1)" },
+            { q: "Phrase: 'X is at least r'", a: "Math: P(X ≥ r)\nGC: 1 - binomcdf(n, p, r-1)" },
+            { q: "Phrase: 'X is more than r'", a: "Math: P(X ≥ r+1)\nGC: 1 - binomcdf(n, p, r)" },
+            { q: "Phrase: 'X is exactly r'", a: "Math: P(X = r)\nGC: binompdf(n, p, r)" }
+        ];
+
+        const quizQuestions = [
+            { q: "X ~ B(12, 0.25). Find the probability that X is at most 3.", opt: ["0.649", "0.842", "0.158", "0.351"], cor: 0, exp: " 'At most 3' means X ≤ 3. GC: binomcdf(12, 0.25, 3)." },
+            { q: "X ~ B(10, 0.4). Find the probability that X is fewer than 4.", opt: ["0.382", "0.618", "0.633", "0.367"], cor: 0, exp: "'Fewer than 4' means X ≤ 3. GC: binomcdf(10, 0.4, 3)." },
+            { q: "X ~ B(15, 0.6). Find the probability that X is more than 10.", opt: ["0.217", "0.783", "0.403", "0.597"], cor: 0, exp: "'More than 10' means X ≥ 11. Complement logic: 1 - P(X ≤ 10). GC: 1 - binomcdf(15, 0.6, 10)." },
+            { q: "X ~ B(20, 0.15). Find the probability that X is at least 5.", opt: ["0.170", "0.830", "0.043", "0.957"], cor: 0, exp: "'At least 5' means X ≥ 5. Complement logic: 1 - P(X ≤ 4). GC: 1 - binomcdf(20, 0.15, 4)." },
+            { q: "X ~ B(8, 0.5). Find the probability that 2 < X ≤ 5.", opt: ["0.711", "0.820", "0.219", "0.773"], cor: 0, exp: "'2 < X ≤ 5' means X is 3, 4, or 5. Math: P(X ≤ 5) - P(X ≤ 2). GC: binomcdf(8, 0.5, 5) - binomcdf(8, 0.5, 2)." },
+            { q: "X ~ B(14, 0.35). Find the probability that X is not more than 6.", opt: ["0.814", "0.186", "0.640", "0.360"], cor: 0, exp: "'Not more than 6' means X ≤ 6. GC: binomcdf(14, 0.35, 6)." },
+            { q: "X ~ B(11, 0.2). Find the probability that X is at least 1.", opt: ["0.914", "0.086", "0.859", "0.141"], cor: 0, exp: "'At least 1' is best found using 1 - P(X = 0). GC: 1 - binompdf(11, 0.2, 0)." }
+        ];
+
+        let currentCard = 0, isFlipped = false, currentQ = 0, score = 0;
+
+        function showMenu() { document.getElementById('menu').classList.remove('hidden'); document.getElementById('study-mode').classList.add('hidden'); document.getElementById('quiz-mode').classList.add('hidden'); }
+        function showStudy() { document.getElementById('menu').classList.add('hidden'); document.getElementById('study-mode').classList.remove('hidden'); updateCard(); }
+
+        function updateCard() { const c = document.getElementById('flashcard'); c.innerText = isFlipped ? flashcards[currentCard].a : flashcards[currentCard].q; }
+        function flipCard() { isFlipped = !isFlipped; updateCard(); }
+        function nextCard() { currentCard = (currentCard + 1) % flashcards.length; isFlipped = false; updateCard(); }
+        function prevCard() { currentCard = (currentCard - 1 + flashcards.length) % flashcards.length; isFlipped = false; updateCard(); }
+
+        function showQuiz() {
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('quiz-mode').classList.remove('hidden');
+            document.getElementById('result-area').classList.add('hidden');
+            document.getElementById('question-container').classList.remove('hidden');
+            currentQ = 0; score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = quizQuestions[currentQ];
+            document.getElementById('question-num').innerText = `Case ${currentQ + 1} of 7`;
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('review-step').classList.add('hidden');
+            const optDiv = document.getElementById('options');
+            optDiv.innerHTML = "";
+            q.opt.forEach((o, i) => {
+                const b = document.createElement('button');
+                b.innerText = o;
+                b.onclick = () => checkAnswer(i);
+                optDiv.appendChild(b);
+            });
+        }
+
+        function checkAnswer(idx) {
+            const q = quizQuestions[currentQ];
+            const expDiv = document.getElementById('explanation-text');
+            const btns = document.querySelectorAll('#options button');
+            btns.forEach(b => b.disabled = true);
+            
+            if(idx === q.cor) {
+                score++;
+                expDiv.innerHTML = `<span class="correct-ans">Correct!</span><br><strong>Explanation:</strong> ${q.exp}`;
+            } else {
+                expDiv.innerHTML = `<span class="wrong-ans">Incorrect.</span> The correct value is ${q.opt[q.cor]}.<br><strong>Logic:</strong> ${q.exp}`;
+            }
+            document.getElementById('review-step').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < 7) loadQuestion();
+            else showResults();
+        }
+
+        function showResults() {
+            document.getElementById('question-container').classList.add('hidden');
+            const res = document.getElementById('result-area');
+            res.classList.remove('hidden');
+            document.getElementById('score-summary').innerText = `Final Result: ${score}/7`;
+            document.getElementById('detailed-feedback').innerHTML = score === 7 ? 
+                "You are an inequality expert! You successfully translated all boundaries into GC commands." : 
+                "Keep practicing the 'Complement' cases (At least/More than). Remember that GC only understands 'Less than or equal to'.";
+        }
+    </script>
+</body>
+</html>
